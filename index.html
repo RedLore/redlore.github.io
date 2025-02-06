@@ -28,8 +28,8 @@
         }
 
         .leaflet-container {
-            height: 400px;
-            width: 600px;
+            height: 100%;
+            width: 100%;
             max-width: 100%;
             max-height: 100%;
         }
@@ -54,7 +54,8 @@
 
     <script>
 
-        console.log('David');
+
+
 
         const map = L.map('map', {
             fullscreenControl: true,
@@ -117,6 +118,10 @@
         // var group = new L.featureGroup([mSol, mMizar, mDeneb]);
 
         map.fitBounds(group.getBounds(), { maxZoom: 5 });
+
+
+
+        alertSize()
 
     </script>
 
