@@ -16,6 +16,7 @@
     <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
         integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 
+    <script src="https://unpkg.com/leaflet-ant-path" type="text/javascript" crossorigin=""></script>
 
     <script src='https://api.mapbox.com/mapbox.js/plugins/leaflet-fullscreen/v1.0.1/Leaflet.fullscreen.min.js'></script>
 
@@ -77,50 +78,52 @@
         const queryString = window.location.search;
         const urlParams = new URLSearchParams(queryString);
         var allPoints = []
+        var allPointsRaw = []
 
 
 
-        if ((urlParams.size % 3) == 0) {
-            for (var pointIdx = 0; pointIdx < urlParams.size / 3; pointIdx++) {
+        if ((urlParams.size % 2) == 0) {
+            for (var pointIdx = 0; pointIdx < urlParams.size / 2; pointIdx++) {
                 const xPos = urlParams.get(`p${pointIdx}x`)
                 const yPos = urlParams.get(`p${pointIdx}y`)
-                const pName = urlParams.get(`p${pointIdx}Name`)
-                const point = xy(xPos, yPos);
-                const mPoint = L.marker(point).addTo(map).bindTooltip(pName,
-                    {
-                        permanent: true,
-                    });
-
-                allPoints.push(mPoint)
+                // const pName = urlParams.get(`p${pointIdx}Name`)
+                // const point = xy(xPos, yPos);
+                // const mPoint = L.marker(point).addTo(map).bindTooltip(pName,
+                //     {
+                //         permanent: true,
+                //     });
+                allPointsRaw.push([yPos, xPos])
+                //allPoints.push(mPoint)
             }
         }
 
-        var group = new L.featureGroup(allPoints);
-        //file://wsl.localhost/Ubuntu/home/david/Software/Leaflet/githubWeb/redlore.github.io/index.html?p0x=10&p0y=10&p0Name=Tag23&p1x=20&p1y=13&p1Name=Tag19
+        const path = new L.Polyline.AntPath(allPointsRaw, {
+            "delay": 400,
+            "dashArray": [
+                10,
+                20
+            ],
+            "weight": 5,
+            "color": "#0000FF",
+            "pulseColor": "#FFFFFF",
+            "paused": false,
+            "reverse": false,
+            "hardwareAccelerated": true
+        });
 
-        //((0,0),(0,30.4552409965164),(48.8320857071784,30.4552409965164),(48.8320857071784,0))
+        map.addLayer(path);
 
+        if (allPointsRaw.length > 2) {
+            const pointStart = xy(allPointsRaw[0][1], allPointsRaw[0][0]);
+            const mpointStart = L.marker(pointStart).addTo(map)
+            allPoints.push(mpointStart)
+            const pointEnd = xy(allPointsRaw[allPointsRaw.length - 1][1], allPointsRaw[allPointsRaw.length - 1][0]);
+            const mpointEnd = L.marker(pointEnd).addTo(map)
+            allPoints.push(mpointEnd)
 
-
-        // const sol = xy(10, 10);
-        // const mizar = xy(10, 15);
-        // const kruegerZ = xy(20, 13);
-        // const deneb = xy(18, 12);
-
-        // const mSol = L.marker(sol).addTo(map).bindPopup('Sol');
-        // const mMizar = L.marker(mizar).addTo(map).bindPopup('Mizar');
-        // const mKruegerZ = L.marker(kruegerZ).addTo(map).bindPopup('Krueger-Z');
-        // const mDeneb = L.marker(deneb).addTo(map).bindPopup('Deneb');
-
-        // const travel = L.polyline([sol, deneb]).addTo(map);
-
-        // var group = new L.featureGroup([mSol, mMizar, mDeneb]);
-
-        map.fitBounds(group.getBounds(), { maxZoom: 5 });
-
-
-
-        alertSize()
+            var group = new L.featureGroup(allPoints);
+            map.fitBounds(group.getBounds(), { maxZoom: 5 });
+        }
 
     </script>
 
