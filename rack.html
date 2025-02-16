@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <base target="_top">
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>CRS.Simple example - Leaflet</title>
+
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css"
+        integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+
+    <link href='https://api.mapbox.com/mapbox.js/plugins/leaflet-fullscreen/v1.0.1/leaflet.fullscreen.css'
+        rel='stylesheet' />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"
+        integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+
+
+    <script src='https://api.mapbox.com/mapbox.js/plugins/leaflet-fullscreen/v1.0.1/Leaflet.fullscreen.min.js'></script>
+
+    <style>
+        html,
+        body {
+            height: 100%;
+            margin: 0;
+        }
+
+        .leaflet-container {
+            height: 100%;
+            width: 100%;
+            max-width: 100%;
+            max-height: 100%;
+        }
+
+
+        .leaflet-tooltip {
+            background-color: #E6E6E6;
+            border: 0px solid #fff;
+        }
+
+        .huechange {
+            filter: hue-rotate(120deg);
+        }
+    </style>
+
+
+</head>
+
+<body>
+
+    <div id='map'></div>
+
+    <script>
+
+
+        const queryString = window.location.search;
+        const urlParams = new URLSearchParams(queryString);
+        if (urlParams.size == 5) {
+            console.log('hello')
+            const rackImage = urlParams.get(`rackImage`)
+            const rackSizeX = parseFloat(urlParams.get(`rackSizeX`))
+            const rackSizeY = parseFloat(urlParams.get(`rackSizeY`))
+            const rackPositionX = parseFloat(urlParams.get(`rackPositionX`))
+            const rackPositionY = parseFloat(urlParams.get(`rackPositionY`))
+
+            const map = L.map('map', {
+                fullscreenControl: true,
+                crs: L.CRS.Simple,
+                minZoom: -3
+            });
+
+            const yx = L.latLng;
+
+            function xy(x, y) {
+                if (Array.isArray(x)) { // When doing xy([x, y]);
+                    return yx(x[1], x[0]);
+                }
+                return yx(y, x); // When doing xy(x, y);
+            }
+
+            const bounds = [xy(0, 0), xy(rackSizeX, rackSizeY)];
+            const image = L.imageOverlay(rackImage, bounds).addTo(map);
+            //const image = L.imageOverlay('fp_full.png', bounds).addTo(map);
+
+            const point = xy(rackPositionX - 0.5, rackSizeY - rackPositionY + 0.5);
+            L.marker(point).addTo(map)
+
+            map.fitBounds(bounds, { maxZoom: 8 })
+        }
+
+
+
+    </script>
+
+
+
+</body>
+
+</html>
