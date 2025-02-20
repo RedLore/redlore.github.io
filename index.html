@@ -53,9 +53,6 @@
 
     <script>
 
-
-
-
         const map = L.map('map', {
             fullscreenControl: true,
             crs: L.CRS.Simple,
@@ -74,17 +71,22 @@
         const bounds = [xy(0, 0), xy(48.8320857071784, 30.4552409965164)];
         const image = L.imageOverlay('fp_full.png', bounds).addTo(map);
 
+
+
+
         const queryString = window.location.search;
         const urlParams = new URLSearchParams(queryString);
         var allPoints = []
 
-
-
-        if ((urlParams.size % 3) == 0) {
-            for (var pointIdx = 0; pointIdx < urlParams.size / 3; pointIdx++) {
+        var oneM = false
+        var fiveM = false
+        if (((urlParams.size - 2) % 3) == 0) {
+            for (var pointIdx = 0; pointIdx < (urlParams.size - 2) / 3; pointIdx++) {
                 const xPos = urlParams.get(`p${pointIdx}x`)
                 const yPos = urlParams.get(`p${pointIdx}y`)
                 const pName = urlParams.get(`p${pointIdx}Name`)
+                fiveM = urlParams.get(`5mGrid`)
+                oneM = urlParams.get(`1mGrid`)
                 const point = xy(xPos, yPos);
                 const mPoint = L.marker(point).addTo(map).bindTooltip(pName,
                     {
@@ -115,6 +117,45 @@
         // const travel = L.polyline([sol, deneb]).addTo(map);
 
         // var group = new L.featureGroup([mSol, mMizar, mDeneb]);
+        // create a red polyline from an array of LatLng points
+
+        // ?1mGrid=yes/no&5mGrid=yes/no&p0x=6.14216686713836&p0y=9.61562235562963&p0Name=T160
+        const latMax = 30.4552409965164
+        const latMin = 0
+        const lngMax = 48.8320857071784
+        const lngMin = 0
+        const lngDiff = lngMax - lngMin
+        const latDiff = latMax - latMin
+        var lineArray = []
+
+        if (oneM === "true") {
+            const spacing = 1
+            for (var i = 0; i < (lngDiff / spacing); i++) {
+                lineArray.push([[latMin, i * spacing], [latMax, i * spacing]])
+            }
+            for (let i = 0; i < (latDiff / spacing); i++) {
+                lineArray.push([[i * spacing, lngMin], [i * spacing, lngMax]])
+            }
+            lineArray.forEach(function (line) {
+                var polyline = L.polyline(line, { color: 'red', weight: 1 }).addTo(map);
+            });
+
+        }
+        lineArray = []
+        if (fiveM === "true") {
+            const spacing = 5
+            for (var i = 0; i < (lngDiff / spacing); i++) {
+                lineArray.push([[latMin, i * spacing], [latMax, i * spacing]])
+            }
+            for (let i = 0; i < (latDiff / spacing); i++) {
+                lineArray.push([[i * spacing, lngMin], [i * spacing, lngMax]])
+            }
+            lineArray.forEach(function (line) {
+                var polyline = L.polyline(line, { color: 'red', weight: 3 }).addTo(map);
+            });
+
+        }
+
 
         map.fitBounds(group.getBounds(), { maxZoom: 5 });
 
